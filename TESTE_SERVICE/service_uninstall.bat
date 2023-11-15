@@ -1,0 +1,1 @@
+﻿sc delete MQ_TESTE1 binPath=C:\Users\mwsbrito\source\repos\Controlador_4.3\TESTE_SERVICE\bin\Release\net6.0\Controlador_4.3_Service.exe

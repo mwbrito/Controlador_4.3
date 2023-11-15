@@ -1,0 +1,1 @@
+﻿sc delete MQ binPath=C:\Users\mwsbrito\source\repos\Controlador_4.3\Controlador_4.3_Service\bin\Debug\net6.0\Controlador_4.3_Service.exe
