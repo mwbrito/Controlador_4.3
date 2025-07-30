@@ -1,0 +1,34 @@
+using System;
+using System.Windows.Forms;
+
+class Program
+{
+    [STAThread]
+    static void Main()
+    {
+        string[,] tabela = new string[,]
+        {
+            { "Nome", "Idade", "Cidade" },
+            { "Ana", "30", "São Paulo" },
+            { "João", "25", "Rio de Janeiro" }
+        };
+
+        var linhas = tabela.GetLength(0);
+        var colunas = tabela.GetLength(1);
+        var texto = "";
+
+        for (int i = 0; i < linhas; i++)
+        {
+            for (int j = 0; j < colunas; j++)
+            {
+                texto += tabela[i, j];
+                if (j < colunas - 1)
+                    texto += '\t'; // Tab = separador de colunas
+            }
+            texto += Environment.NewLine; // Nova linha = separador de linhas
+        }
+
+        Clipboard.SetText(texto);
+        Console.WriteLine("Tabela copiada para a área de transferência.");
+    }
+}
