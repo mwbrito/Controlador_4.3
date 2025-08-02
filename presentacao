@@ -1,76 +1,0 @@
-1. Contexto do sistema  
-"Agora que o Celton já explicou a teoria por trás do Microsoft Orleans, vou mostrar como a gente aplicou isso na prática, num sistema real que está hoje em produção. 
-Um sistema é responsável por conectar no feeder, receber o stream de dados e publicar no MD4, por enquanto só para o projeto de Swap Dialer.
-
-A gente precisava lidar com alguns desafios importantes:
-* Manter o estado de cada entidade ativo por um tempo sem depender de cache externo.
-* E garantir consistência de negócio, mesmo com uma arquitetura distribuída.
-
-Isso é impossível resolver sem o Orleans? Não, inclusive o primeiro impulso foi desenvolver alguma coisa para controlar isso
-
-
-
-2. Por que escolhemos Orleans
-"A gente começou avaliando outras abordagens mais caseiras, alguma coisa .
-Mas tudo isso exigia muito código de infraestrutura, e deixava a lógica de negócio meio espalhada.
-
-O Orleans chamou nossa atenção porque ele 
-
-Além disso, o Orleans se encarrega de escalar os Grains automaticamente, ativando e desativando conforme a carga.
-
-Tudo isso sem a gente ter que lidar com filas, workers ou instâncias manualmente.
-
-No fim das contas, ele uniu a simplicidade de código com a força de uma arquitetura distribuída, o que pra gente foi decisivo."
-
-
-
-
-3. Modelagem com Grains 
-
-"No nosso caso, a arquitetura é ainda mais simples: a gente usa um único tipo de Grain pra resolver todo o problema de estado.
-
-Esse Grain representa DataId / um tópico dentro do md4.
- Cada instância dele é identificada por um ID único, e todo o comportamento dessa entidade fica encapsulado ali dentro.
-
-No intervalo de alguns minutos verificamos se tem algum parâmetro novo cadastrado, caso alguém tenha cadastrado um novo tópico, .
- Isso evita condições de corrida, evita problemas de sincronização, e facilita muito a leitura e manutenção do código.
-Outra coisa interessante: mesmo com só um tipo de Grain, a gente consegue lidar com milhares de instâncias ativas simultaneamente. 
-
-O Orleans escala horizontalmente conforme a demanda, sem que a gente precise se preocupar com balanceamento ou criação de threads.
-
-
-Essa abordagem de um único tipo de Grain, mas com milhares de instâncias ativas em paralelo, tem funcionado muito bem pra nossa necessidade.
-
- É um modelo simples, mas extremamente eficaz pra lidar com concorrência e estado distribuído.
-
-
-
-
-
-
-4. Aprendizados e desafios
-"No nosso caso, dois desafios se destacaram quando começamos a usar Orleans na prática.
-
-O primeiro foi com relação ao ciclo de vida dos Grains. Por padrão, o Orleans ativa um Grain sob demanda, e desativa automaticamente depois de um tempo sem chamadas — o que é ótimo pra escalabilidade.
-Mas em alguns momentos a gente esperava que o Grain ainda estivesse ativo, e ele já tinha sido desativado. Quando reativava, vinha sem o estado que a gente esperava.
-
-O segundo ponto foi quase o oposto: teve uma situação em que a gente queria forçar a finalização de um Grain, e... basicamente não tem um jeito oficial de fazer isso.
-O Orleans gerencia o ciclo de vida sozinho, e não expõe uma API pública pra “matar” um Grain na hora. O máximo que dá pra fazer é tentar tornar ele inativo — usando, por exemplo, DeactivateOnIdle() — mas mesmo isso depende do runtime.
-A gente entendeu que, no Orleans, a lógica não deve depender da destruição do Grain. Em vez de forçar uma limpeza, o ideal é garantir que o estado esteja consistente e deixar o runtime lidar com o resto.
-
-Esses dois casos ensinaram bastante sobre como pensar diferente num modelo orientado a atores: a gente perde um pouco de controle direto sobre o ciclo de vida, mas ganha um modelo mais simples e robusto — desde que você jogue pelas regras dele."
-
-
-
-
-
-
-
-5. Resumo e encerramento 
-"Pra fechar, o Orleans nos ajudou muito, conseguimos evitar vários problemas comuns de concorrência.
-
-Claro que tem uma curva de aprendizado — especialmente pra quem vem de um background mais tradicional — mas depois que entende o modelo, ele vira um aliado poderoso.
-
-A dica principal é: se você tem um sistema multaz, statefull, ou precisa ter apenas uma instância no ar
-
-E agora passo a bola pro [Nome do colega], que vai mostrar como tudo isso funciona no nível da infraestrutura — desde o cluster até as configurações de persistência."
